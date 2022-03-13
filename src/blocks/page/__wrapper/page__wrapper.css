@@ -1,0 +1,8 @@
+.page__wrapper{
+    max-width: 1280px;
+    min-width: 288px;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
