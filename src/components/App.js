@@ -1,6 +1,7 @@
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
 import React, { useState } from "react";
 import ProtectedRoute from './ProtectedRoute';
+import * as auth from '../utils/auth';
 import Login from "./Login";
 import Register from "./Register";
 import Header from "./Header";
@@ -16,7 +17,8 @@ import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [userEmail, setUserEmail] = useState("");
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -30,45 +32,68 @@ function App() {
   const [selectedCard, setSelectedCard] = useState({});
 
   React.useEffect(() => {
-    async function getUserData() {
-      setIsLoading(true);
-      try {
-        const userInfo = await api.getUserInfo();
+    console.log("useEffect handleTokenCheck()")
+    console.log(isLoggedIn)
 
-        if (userInfo) {
-          setCurrentUser(userInfo);
-        }
-      } catch (error) {
-        console.log("Error! ", error);
-        alert("Something went wrong getting user data..");
-      } finally {
-        setIsLoading(false);
+    async function handleTokenCheck() {
+      if (localStorage.getItem('jwt')) {
+        console.log("Exist")
+        const jwt = localStorage.getItem('jwt');
+        auth.checkToken(jwt).then((res) => {
+          console.log(res)
+          if (res) {
+            setIsLoggedIn(true);
+            setUserEmail(res.data.email);
+            getUserData();
+            getCardsData();
+          }
+        });
       }
     }
-    getUserData();
-  }, []);
 
-  React.useEffect(() => {
-    async function getCardsData() {
-      setIsLoading(true);
-      try {
-        const cardsData = await api.getInitialCards();
+    handleTokenCheck();
+  },[isLoggedIn]);
 
-        if (cardsData) {
-          setCards(cardsData);
-        }
-      } catch (error) {
-        console.log("Error! ", error);
-        alert("Something went wrong getting cards data..");
-      } finally {
-        setIsLoading(false);
+  function handleLogin() {
+    setIsLoggedIn(true);
+  }
+
+  function handleLogout() {
+    console.log("Logout Clicked")
+    localStorage.removeItem('jwt');
+    setIsLoggedIn(false);
+  }
+
+  async function getUserData() {
+    setIsLoading(true);
+    try {
+      const userInfo = await api.getUserInfo();
+
+      if (userInfo) {
+        setCurrentUser(userInfo);
       }
+    } catch (error) {
+      console.log("Error! ", error);
+      alert("Something went wrong getting user data..");
+    } finally {
+      setIsLoading(false);
     }
-    getCardsData();
-  }, []);
+  }
 
-  async function handleLogin() {
+  async function getCardsData() {
+    setIsLoading(true);
+    try {
+      const cardsData = await api.getInitialCards();
 
+      if (cardsData) {
+        setCards(cardsData);
+      }
+    } catch (error) {
+      console.log("Error! ", error);
+      alert("Something went wrong getting cards data..");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function handleCardLike(card) {
@@ -175,16 +200,31 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__wrapper">
-        <Header />
           <Switch>
             <Route path="/signin">
+              <Header
+                email={""}
+                linkTitle={"Sing up"}
+                link={"/singup"}
+              />
               <Login handleLogin={handleLogin} />
             </Route>      
             <Route path="/signup">
+              <Header
+                email={""}
+                linkTitle={"Sing in"}
+                link={"/singin"}
+              />
               <Register />
-              {document.querySelector("link").innerHTML = "Signin"}
             </Route>
             <ProtectedRoute exact path="/" isLoggedIn={isLoggedIn}>
+              <Header
+                email={userEmail}
+                linkTitle={"Log out"}
+                link={""}
+                handleLogout={handleLogout}
+              />
+
               <Main
                 isLoading={isLoading}
                 onEditAvatarClick={handleEditAvatarClick}
@@ -231,7 +271,7 @@ function App() {
               <Footer />              
             </ProtectedRoute>
             <Route path="*/">
-              <Redirect to="/" />
+              {isLoggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
             </Route>
           </Switch>
         </div>
@@ -240,4 +280,4 @@ function App() {
   );
 }
 
-export default App;
+export default withRouter(App);
