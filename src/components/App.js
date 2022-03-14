@@ -1,3 +1,8 @@
+import { Route, Switch, Redirect } from 'react-router-dom';
+import React, { useState } from "react";
+import ProtectedRoute from './ProtectedRoute';
+import Login from "./Login";
+import Register from "./Register";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -8,10 +13,11 @@ import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
 import "../index.css";
 import api from "../utils/api";
-import React, { useState } from "react";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
 
@@ -60,6 +66,10 @@ function App() {
     }
     getCardsData();
   }, []);
+
+  async function handleLogin() {
+
+  }
 
   async function handleCardLike(card) {
     const isLiked = card.likes.some((item) => item._id === currentUser._id);
@@ -165,51 +175,65 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__wrapper">
-          <Header />
-          <Main
-            isLoading={isLoading}
-            onEditAvatarClick={handleEditAvatarClick}
-            onEditProfileClick={handleEditProfileClick}
-            onAddPlaceClick={handleAddPlaceClick}
-            cards={cards}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            onCardDelete={handleCardDelete}
-          />
+        <Header />
+          <Switch>
+            <Route path="/signin">
+              <Login handleLogin={handleLogin} />
+            </Route>      
+            <Route path="/signup">
+              <Register />
+              {document.querySelector("link").innerHTML = "Signin"}
+            </Route>
+            <ProtectedRoute exact path="/" isLoggedIn={isLoggedIn}>
+              <Main
+                isLoading={isLoading}
+                onEditAvatarClick={handleEditAvatarClick}
+                onEditProfileClick={handleEditProfileClick}
+                onAddPlaceClick={handleAddPlaceClick}
+                cards={cards}
+                onCardClick={handleCardClick}
+                onCardLike={handleCardLike}
+                onCardDelete={handleCardDelete}
+              />
 
-          <ImagePopup
-            selectedCard={selectedCard}
-            isOpen={isImagePopupOpen}
-            onClose={closeAllPopups}
-          />
+              <ImagePopup
+                selectedCard={selectedCard}
+                isOpen={isImagePopupOpen}
+                onClose={closeAllPopups}
+              />
 
-          <EditProfilePopup
-            isOpen={isEditProfilePopupOpen}
-            onClose={closeAllPopups}
-            onUpdateUser={handleUpdateUser}
-          />
+              <EditProfilePopup
+                isOpen={isEditProfilePopupOpen}
+                onClose={closeAllPopups}
+                onUpdateUser={handleUpdateUser}
+              />
 
-          <EditAvatarPopup
-            isOpen={isEditAvatarPopupOpen}
-            onClose={closeAllPopups}
-            onUpdateAvatar={handleUpadeAvatar}
-          />
+              <EditAvatarPopup
+                isOpen={isEditAvatarPopupOpen}
+                onClose={closeAllPopups}
+                onUpdateAvatar={handleUpadeAvatar}
+              />
 
-          <AddPlacePopup
-            isOpen={isAddPlacePopupOpen}
-            onClose={closeAllPopups}
-            onUpdateCard={handleAddPlaceSubmit}
-          />
+              <AddPlacePopup
+                isOpen={isAddPlacePopupOpen}
+                onClose={closeAllPopups}
+                onUpdateCard={handleAddPlaceSubmit}
+              />
 
-          <PopupWithForm
-            isOpen={isDeleteCardPopupOpen}
-            onClose={closeAllPopups}
-            name="delete-card"
-            title="Are you sure?"
-            buttonText="Yes"
-          ></PopupWithForm>
+              <PopupWithForm
+                isOpen={isDeleteCardPopupOpen}
+                onClose={closeAllPopups}
+                name="delete-card"
+                title="Are you sure?"
+                buttonText="Yes"
+              />
 
-          <Footer />
+              <Footer />              
+            </ProtectedRoute>
+            <Route path="*/">
+              <Redirect to="/" />
+            </Route>
+          </Switch>
         </div>
       </div>
     </CurrentUserContext.Provider>
