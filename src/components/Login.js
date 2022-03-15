@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, withRouter } from "react-router-dom";
-import * as auth from "../utils/auth.js";
 
 class Login extends React.Component {
   constructor(props) {
@@ -26,19 +25,7 @@ class Login extends React.Component {
       return;
     }
     const { password, email } = this.state;
-    auth
-      .signin(password, email)
-      .then((data) => {
-        console.log(data);
-        if (data.token) {
-          console.log("Login Successfuly: " + data);
-          this.setState({ email: "", password: "" }, () => {
-            this.props.handleLogin();
-            this.props.history.push("/");
-          });
-        }
-      })
-      .catch((err) => console.log(err));
+    this.props.handleLogin(password, email);
   }
 
   render() {

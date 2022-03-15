@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, withRouter } from "react-router-dom";
-import * as auth from "../utils/auth.js";
 
 class Register extends React.Component {
   constructor(props) {
@@ -23,14 +22,7 @@ class Register extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     const { password, email } = this.state;
-    auth.signup(password, email).then((res) => {
-      if (res) {
-        console.log(res);
-        this.props.history.push("/signin");
-      } else {
-        console.error("Signup Error: Something went wrong.");
-      }
-    });
+    this.props.handleSignup(password, email);
   };
 
   render() {

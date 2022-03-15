@@ -1,4 +1,4 @@
-import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
+import { Route, Switch, Redirect, withRouter, useHistory } from 'react-router-dom';
 import React, { useState } from "react";
 import ProtectedRoute from './ProtectedRoute';
 import * as auth from '../utils/auth';
@@ -12,13 +12,18 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
+import InfoTooltip from "./InfoTooltip";
 import "../index.css";
 import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const history = useHistory();
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [userEmail, setUserEmail] = useState("");
+  const [isInfoTolltipOpen, setIsInfoTolltipPopup] = useState(false);
+
+  const [success, setSuccess] = useState(false);
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -34,38 +39,6 @@ function App() {
   React.useEffect(() => {
     console.log("useEffect handleTokenCheck()")
     console.log("Is Logged In = "+isLoggedIn)
-
-    async function getUserData() {
-      setIsLoading(true);
-      try {
-        const userInfo = await api.getUserInfo();
-  
-        if (userInfo) {
-          setCurrentUser(userInfo);
-        }
-      } catch (error) {
-        console.log("Error! ", error);
-        alert("Something went wrong getting user data..");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  
-    async function getCardsData() {
-      setIsLoading(true);
-      try {
-        const cardsData = await api.getInitialCards();
-  
-        if (cardsData) {
-          setCards(cardsData);
-        }
-      } catch (error) {
-        console.log("Error! ", error);
-        alert("Something went wrong getting cards data..");
-      } finally {
-        setIsLoading(false);
-      }
-    }
 
     async function handleTokenCheck() {
       console.log(localStorage.getItem('jwt'))
@@ -85,21 +58,80 @@ function App() {
         setIsLoggedIn(false);
       }
     }
-    
     handleTokenCheck();
   },[isLoggedIn]);
 
-  function handleLogin() {
-    setIsLoggedIn(true);
+  function handleLogin(password, email) {
+    auth
+      .signin(password, email)
+      .then((data) => {
+        console.log(data);
+        if (data.token) {
+          console.log("Login Successfuly: " + data);
+          setIsLoggedIn(true);
+          history.push("/");
+        }
+      })
+      .catch((err) => {
+        setSuccess(false);
+        setIsInfoTolltipPopup(true);
+        console.log(err);
+      });
+  }
+
+  function handleSignup(password, email) {
+    auth.signup(password, email).then((res) => {
+      console.log(res)
+      if (res.status === 400) {
+        setSuccess(false);
+        setIsInfoTolltipPopup(true);
+        console.error("Signup Error: Something went wrong." + res);
+      } else {
+        setSuccess(true);
+        setIsInfoTolltipPopup(true);
+      }
+    }).catch((err) => console.log(err));
+    setIsInfoTolltipPopup(true);
   }
 
   function handleLogout() {
     console.log("Logout Clicked")
     localStorage.removeItem('jwt');
     setIsLoggedIn(false);
+    history.push("./signin");
   }
 
-  
+  async function getUserData() {
+    setIsLoading(true);
+    try {
+      const userInfo = await api.getUserInfo();
+
+      if (userInfo) {
+        setCurrentUser(userInfo);
+      }
+    } catch (error) {
+      console.log("Error! ", error);
+      alert("Something went wrong getting user data..");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function getCardsData() {
+    setIsLoading(true);
+    try {
+      const cardsData = await api.getInitialCards();
+
+      if (cardsData) {
+        setCards(cardsData);
+      }
+    } catch (error) {
+      console.log("Error! ", error);
+      alert("Something went wrong getting cards data..");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   async function handleCardLike(card) {
     const isLiked = card.likes.some((item) => item._id === currentUser._id);
@@ -182,6 +214,7 @@ function App() {
     setIsEditAvatarPopup(false);
     setIsImagePopup(false);
     setIsDeleteCardPopupOpen(false);
+    setIsInfoTolltipPopup(false);
   }
 
   function handleEditAvatarClick() {
@@ -208,26 +241,50 @@ function App() {
           <Switch>
             <Route path="/signin">
               <Header
-                email={""}
                 linkTitle={"Sing up"}
                 link={"/signup"}
+                button={"header__button"}
               />
               <Login handleLogin={handleLogin} />
+              {isInfoTolltipOpen && success ? (
+                <></>
+              ) : (
+                <InfoTooltip
+                  isOpen={isInfoTolltipOpen}
+                  onClose={closeAllPopups}
+                  success={false}
+                  message={"Oops, something went wrong! Please try again."}
+                />
+              )}
             </Route>      
             <Route path="/signup">
               <Header
-                email={""}
-                linkTitle={"Sing in"}
-                link={"/singin"}
+                linkTitle={"Log in"}
+                link={"/signin"}
+                button={"header__button"}
               />
-              <Register />
+              <Register handleSignup={handleSignup}/>
+              {success ? (
+                <InfoTooltip
+                  isOpen={isInfoTolltipOpen}
+                  onClose={closeAllPopups}
+                  success={true}
+                />
+              ) : (
+                <InfoTooltip
+                  isOpen={isInfoTolltipOpen}
+                  onClose={closeAllPopups}
+                  success={false}
+                />
+              )}
+              
             </Route>
             <ProtectedRoute exact path="/" isLoggedIn={isLoggedIn}>
               <Header
-                email={userEmail}
-                linkTitle={"Log out"}
                 link={""}
-                handleLogout={handleLogout}
+                email={userEmail}
+                button={"header__button_active"}
+                onClick={handleLogout}
               />
 
               <Main
@@ -275,7 +332,7 @@ function App() {
 
               <Footer />              
             </ProtectedRoute>
-            <Route path="*/">
+            <Route path="/*">
               {isLoggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
             </Route>
           </Switch>

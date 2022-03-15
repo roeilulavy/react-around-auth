@@ -1,4 +1,9 @@
-.header__link{
+.header__button_active{
+  display: block;
+  background-color: black;
+  border: none;
+  width: fit-content;
+  height: fit-content;
   font-family: 'Inter', Arial, sans-serif;
   font-weight: 400;
   font-size: 18px;
@@ -8,17 +13,10 @@
   color: #ffffff;
   margin: 0;
   padding: 0;
+  cursor: pointer;
   transition: opacity 0.3s ease-in-out;
 }
 
-.header__link:hover{
+.header__button_active:hover{
   opacity: 0.6;
-}
-
-@media screen and (max-width: 500px){
-  .header__link{
-    font-size: 14px;
-    line-height: 17px;
-    margin: 0 30px 0 0;
-  }
 }
