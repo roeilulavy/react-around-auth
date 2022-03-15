@@ -17,7 +17,7 @@ import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
 
   const [currentUser, setCurrentUser] = useState({});
@@ -33,9 +33,42 @@ function App() {
 
   React.useEffect(() => {
     console.log("useEffect handleTokenCheck()")
-    console.log(isLoggedIn)
+    console.log("Is Logged In = "+isLoggedIn)
+
+    async function getUserData() {
+      setIsLoading(true);
+      try {
+        const userInfo = await api.getUserInfo();
+  
+        if (userInfo) {
+          setCurrentUser(userInfo);
+        }
+      } catch (error) {
+        console.log("Error! ", error);
+        alert("Something went wrong getting user data..");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  
+    async function getCardsData() {
+      setIsLoading(true);
+      try {
+        const cardsData = await api.getInitialCards();
+  
+        if (cardsData) {
+          setCards(cardsData);
+        }
+      } catch (error) {
+        console.log("Error! ", error);
+        alert("Something went wrong getting cards data..");
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
     async function handleTokenCheck() {
+      console.log(localStorage.getItem('jwt'))
       if (localStorage.getItem('jwt')) {
         console.log("Exist")
         const jwt = localStorage.getItem('jwt');
@@ -48,9 +81,11 @@ function App() {
             getCardsData();
           }
         });
+      } else {
+        setIsLoggedIn(false);
       }
     }
-
+    
     handleTokenCheck();
   },[isLoggedIn]);
 
@@ -64,37 +99,7 @@ function App() {
     setIsLoggedIn(false);
   }
 
-  async function getUserData() {
-    setIsLoading(true);
-    try {
-      const userInfo = await api.getUserInfo();
-
-      if (userInfo) {
-        setCurrentUser(userInfo);
-      }
-    } catch (error) {
-      console.log("Error! ", error);
-      alert("Something went wrong getting user data..");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function getCardsData() {
-    setIsLoading(true);
-    try {
-      const cardsData = await api.getInitialCards();
-
-      if (cardsData) {
-        setCards(cardsData);
-      }
-    } catch (error) {
-      console.log("Error! ", error);
-      alert("Something went wrong getting cards data..");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  
 
   async function handleCardLike(card) {
     const isLiked = card.likes.some((item) => item._id === currentUser._id);
@@ -205,7 +210,7 @@ function App() {
               <Header
                 email={""}
                 linkTitle={"Sing up"}
-                link={"/singup"}
+                link={"/signup"}
               />
               <Login handleLogin={handleLogin} />
             </Route>      
