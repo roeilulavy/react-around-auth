@@ -18,8 +18,9 @@ import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 function App() {
-  const history = useHistory();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(true);
+  const [userData, setUserData] = useState(null);
+
   const [userEmail, setUserEmail] = useState("");
   const [isInfoTolltipOpen, setIsInfoTolltipPopup] = useState(false);
 
@@ -36,9 +37,18 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
 
+  const history = useHistory();
+
+  React.useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if(jwt) {
+      
+    }
+  })
+
   React.useEffect(() => {
     console.log("useEffect handleTokenCheck()")
-    console.log("Is Logged In = "+isLoggedIn)
+    console.log("Is Logged In = "+loggedIn)
 
     async function handleTokenCheck() {
       console.log(localStorage.getItem('jwt'))
@@ -48,18 +58,18 @@ function App() {
         auth.checkToken(jwt).then((res) => {
           console.log(res)
           if (res) {
-            setIsLoggedIn(true);
+            setLoggedIn(true);
             setUserEmail(res.data.email);
             getUserData();
             getCardsData();
           }
         });
       } else {
-        setIsLoggedIn(false);
+        setLoggedIn(false);
       }
     }
     handleTokenCheck();
-  },[isLoggedIn]);
+  },[loggedIn]);
 
   function handleLogin(password, email) {
     auth
@@ -68,7 +78,7 @@ function App() {
         console.log(data);
         if (data.token) {
           console.log("Login Successfuly: " + data);
-          setIsLoggedIn(true);
+          setLoggedIn(true);
           history.push("/");
         }
       })
@@ -97,7 +107,7 @@ function App() {
   function handleLogout() {
     console.log("Logout Clicked")
     localStorage.removeItem('jwt');
-    setIsLoggedIn(false);
+    setLoggedIn(false);
     history.push("./signin");
   }
 
@@ -279,7 +289,7 @@ function App() {
               )}
               
             </Route>
-            <ProtectedRoute exact path="/" isLoggedIn={isLoggedIn}>
+            <ProtectedRoute exact path="/" loggedIn={loggedIn}>
               <Header
                 link={""}
                 email={userEmail}
@@ -333,7 +343,7 @@ function App() {
               <Footer />              
             </ProtectedRoute>
             <Route path="/*">
-              {isLoggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
+              {loggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
             </Route>
           </Switch>
         </div>
