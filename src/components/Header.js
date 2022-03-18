@@ -3,20 +3,15 @@ import logo from "../images/logo/logo.svg";
 
 function Header(props) {
 
-  function onLogout() {
-    console.log("Logout Clicked")
-    localStorage.removeItem('jwt');
-    props.onLogout();
-  };
-
   return (
     <header className="header">
       <img className="header__logo" src={logo} alt="Around the U.S logo" />
-      <div className="header__user-container">
+      <Link to={props.link} className="header__link">{props.linkTitle}</Link>
+      {/* <div className="header__user-container">
         <p className="header__id">{props.email}</p>
         <Link to={props.link} className="header__link">{props.linkTitle}</Link>
         <button className={props.button} onClick={onLogout}>Log out</button>
-      </div>
+      </div> */}
     </header>
   );
 }

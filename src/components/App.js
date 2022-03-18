@@ -1,4 +1,4 @@
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory, Link } from 'react-router-dom';
 import React, { useState } from "react";
 import ProtectedRoute from './ProtectedRoute';
 import * as auth from '../utils/auth';
@@ -43,6 +43,8 @@ const App = () => {
   }
 
   const onLogout = () => {
+    console.log("Logout Clicked")
+    localStorage.removeItem('jwt');
     setLoggedIn(false);
     history.push("/signin");
   }
@@ -215,7 +217,9 @@ const App = () => {
               <Header
                 linkTitle={"Sing up"}
                 link={"/signup"}
-                button={"header__button"}
+                button={"header__button_active"}
+                buttonText={"Sign up"}
+             
               />
               <Login onLogin={onLogin} />
             </Route>      
