@@ -1,4 +1,4 @@
-import { Route, Switch, Redirect, withRouter, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import React, { useState } from "react";
 import ProtectedRoute from './ProtectedRoute';
 import * as auth from '../utils/auth';
@@ -12,19 +12,13 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
-import InfoTooltip from "./InfoTooltip";
 import "../index.css";
 import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
-function App() {
-  const [loggedIn, setLoggedIn] = useState(true);
-  const [userData, setUserData] = useState(null);
-
-  const [userEmail, setUserEmail] = useState("");
-  const [isInfoTolltipOpen, setIsInfoTolltipPopup] = useState(false);
-
-  const [success, setSuccess] = useState(false);
+const App = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userData, setUserData] = useState([]);
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -38,78 +32,47 @@ function App() {
   const [selectedCard, setSelectedCard] = useState({});
 
   const history = useHistory();
+  
+  const onRegister = () => {
+    history.push('/signin');
+  }
+
+  const onLogin = (userData) => {
+    setUserData(userData);
+    setLoggedIn(true);
+  }
+
+  const onLogout = () => {
+    setLoggedIn(false);
+    history.push("/signin");
+  }
 
   React.useEffect(() => {
     const jwt = localStorage.getItem('jwt');
     if(jwt) {
-      
-    }
-  })
-
-  React.useEffect(() => {
-    console.log("useEffect handleTokenCheck()")
-    console.log("Is Logged In = "+loggedIn)
-
-    async function handleTokenCheck() {
-      console.log(localStorage.getItem('jwt'))
-      if (localStorage.getItem('jwt')) {
-        console.log("Exist")
-        const jwt = localStorage.getItem('jwt');
-        auth.checkToken(jwt).then((res) => {
-          console.log(res)
-          if (res) {
-            setLoggedIn(true);
-            setUserEmail(res.data.email);
-            getUserData();
-            getCardsData();
+      auth.checkToken(jwt).then((res) => {
+        if (res){
+          const data = {
+            email: res.data.email,
+            id: res.data._id
           }
-        });
-      } else {
-        setLoggedIn(false);
-      }
-    }
-    handleTokenCheck();
-  },[loggedIn]);
 
-  function handleLogin(password, email) {
-    auth
-      .signin(password, email)
-      .then((data) => {
-        console.log(data);
-        if (data.token) {
-          console.log("Login Successfuly: " + data);
           setLoggedIn(true);
-          history.push("/");
+          setUserData(data);
         }
       })
-      .catch((err) => {
-        setSuccess(false);
-        setIsInfoTolltipPopup(true);
-        console.log(err);
-      });
-  }
+    }
+  }, []);
 
-  function handleSignup(password, email) {
-    auth.signup(password, email).then((res) => {
-      console.log(res)
-      if (res.status === 400) {
-        setSuccess(false);
-        setIsInfoTolltipPopup(true);
-        console.error("Signup Error: Something went wrong." + res);
-      } else {
-        setSuccess(true);
-        setIsInfoTolltipPopup(true);
-      }
-    }).catch((err) => console.log(err));
-    setIsInfoTolltipPopup(true);
-  }
-
-  function handleLogout() {
-    console.log("Logout Clicked")
-    localStorage.removeItem('jwt');
-    setLoggedIn(false);
-    history.push("./signin");
-  }
+  React.useEffect(() => {
+    if (loggedIn) {
+      history.push('/');
+      getUserData();
+      getCardsData();
+    } else {
+      history.push('/signin');
+    }
+  }, [loggedIn, history]);
 
   async function getUserData() {
     setIsLoading(true);
@@ -224,7 +187,6 @@ function App() {
     setIsEditAvatarPopup(false);
     setIsImagePopup(false);
     setIsDeleteCardPopupOpen(false);
-    setIsInfoTolltipPopup(false);
   }
 
   function handleEditAvatarClick() {
@@ -255,17 +217,7 @@ function App() {
                 link={"/signup"}
                 button={"header__button"}
               />
-              <Login handleLogin={handleLogin} />
-              {isInfoTolltipOpen && success ? (
-                <></>
-              ) : (
-                <InfoTooltip
-                  isOpen={isInfoTolltipOpen}
-                  onClose={closeAllPopups}
-                  success={false}
-                  message={"Oops, something went wrong! Please try again."}
-                />
-              )}
+              <Login onLogin={onLogin} />
             </Route>      
             <Route path="/signup">
               <Header
@@ -273,30 +225,15 @@ function App() {
                 link={"/signin"}
                 button={"header__button"}
               />
-              <Register handleSignup={handleSignup}/>
-              {success ? (
-                <InfoTooltip
-                  isOpen={isInfoTolltipOpen}
-                  onClose={closeAllPopups}
-                  success={true}
-                />
-              ) : (
-                <InfoTooltip
-                  isOpen={isInfoTolltipOpen}
-                  onClose={closeAllPopups}
-                  success={false}
-                />
-              )}
-              
+              <Register onRegister={onRegister} />
             </Route>
             <ProtectedRoute exact path="/" loggedIn={loggedIn}>
               <Header
                 link={""}
-                email={userEmail}
+                email={userData.email}
                 button={"header__button_active"}
-                onClick={handleLogout}
+                onLogout={onLogout}
               />
-
               <Main
                 isLoading={isLoading}
                 onEditAvatarClick={handleEditAvatarClick}
@@ -342,9 +279,6 @@ function App() {
 
               <Footer />              
             </ProtectedRoute>
-            <Route path="/*">
-              {loggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
-            </Route>
           </Switch>
         </div>
       </div>
@@ -352,4 +286,4 @@ function App() {
   );
 }
 
-export default withRouter(App);
+export default App;

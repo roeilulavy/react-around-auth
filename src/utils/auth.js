@@ -1,6 +1,6 @@
 export const BASE_URL = "https://register.nomoreparties.co";
 
-export const signup = (password, email) => {
+export const signup = (email, password) => {
   return fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
@@ -10,21 +10,16 @@ export const signup = (password, email) => {
     body: JSON.stringify({ password, email }),
   })
     .then((response) => {
-      console.log(response);
       try {
-        if (response.status === 400) {
-          return { status: 400, data: response.json() };
-        } else {
-          return { status: 201, data: response.json() };
-        }
+        return response.json();
       } catch (e) {
         return console.error("Response catch Error: " + e);
       }
     })
-    .catch((err) => console.log("Error: " + err));
+    .catch((err) => console.error("Error: " + err));
 };
 
-export const signin = (password, email) => {
+export const signin = (email, password) => {
   return fetch(`${BASE_URL}/signin`, {
     method: "POST",
     headers: {
@@ -34,21 +29,13 @@ export const signin = (password, email) => {
     body: JSON.stringify({ password, email }),
   })
     .then((response) => {
-      console.log(response);
       try {
-        if (response.status === 400) {
-          return { status: 400, data: response.json() };
-        } else if (response.status === 401) {
-          return { status: 401, data: response.json() };
-        } else {
           return response.json();
-        }
       } catch (e) {
         return console.error("Response catch Error: " + e);
       }
     })
     .then((data) => {
-      console.log(data.token);
       if (data.token) {
         localStorage.setItem("jwt", data.token);
         return data;
@@ -68,5 +55,5 @@ export const checkToken = (token) => {
   })
     .then((res) => res.json())
     .then((data) => data)
-    .catch((err) => console.log(err));
+    .catch((err) => console.error(err));
 };
