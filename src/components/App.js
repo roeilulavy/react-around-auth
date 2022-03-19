@@ -214,28 +214,17 @@ const App = () => {
         <div className="page__wrapper">
           <Switch>
             <Route path="/signin">
-              <Header
-                linkTitle={"Sing up"}
-                link={"/signup"}
-                button={"header__button_active"}
-                buttonText={"Sign up"}
-             
-              />
+              <Header page={"signin"} />
               <Login onLogin={onLogin} />
             </Route>      
             <Route path="/signup">
-              <Header
-                linkTitle={"Log in"}
-                link={"/signin"}
-                button={"header__button"}
-              />
+              <Header page={"signup"} />
               <Register onRegister={onRegister} />
             </Route>
             <ProtectedRoute exact path="/" loggedIn={loggedIn}>
-              <Header
-                link={""}
+              <Header 
+                page={"home"}
                 email={userData.email}
-                button={"header__button_active"}
                 onLogout={onLogout}
               />
               <Main
