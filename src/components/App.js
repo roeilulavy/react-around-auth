@@ -62,7 +62,7 @@ const App = () => {
           setLoggedIn(true);
           setUserData(data);
         }
-      })
+      }).catch((err) => console.error(err));
     }
   }, []);
 

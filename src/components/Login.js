@@ -22,10 +22,6 @@ const Login = (props) => {
       return;
     }
     auth.signin(email, password).then((data) => {
-      if(!data) {
-        setMessage('Oops, something went wrong! Please try again.');
-        setIsInfoTolltipPopup(true);
-      }
       if(data.token) {
         resetForm();
         const userData = {
@@ -35,7 +31,11 @@ const Login = (props) => {
         props.onLogin(userData);
         return;
       }
-    }).catch(err => console.log(err));
+    }).catch((err) => {
+      console.log(err)
+      setMessage('Oops, something went wrong! Please try again.');
+      setIsInfoTolltipPopup(true);
+    });
   }
 
   function onClose() {
