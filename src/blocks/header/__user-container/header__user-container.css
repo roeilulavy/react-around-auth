@@ -1,5 +1,6 @@
 .header__user-container{
   max-height: fit-content;
+  min-width: fit-content;
   display: flex;
   flex-direction: row;
   margin: 0;
