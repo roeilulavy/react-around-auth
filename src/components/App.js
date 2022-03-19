@@ -1,4 +1,4 @@
-import { Route, Switch, useHistory, Link } from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import React, { useState } from "react";
 import ProtectedRoute from './ProtectedRoute';
 import * as auth from '../utils/auth';

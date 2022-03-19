@@ -14,8 +14,9 @@
     }
 }
 
-@media screen and (max-width: 500px){
+@media screen and (max-width: 670px){
     .header{
-        margin: 28px 0 0;
+        margin: 0;
+        flex-direction: column-reverse;
     }
 }
