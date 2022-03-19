@@ -10,14 +10,13 @@
 
 @media screen and (max-width: 1120px){
     .elements{
-        margin: 50px 100px 0;
+        margin: 50px auto 0;
     }
 }
 
 @media screen and (max-width: 960px){
     .elements{
         grid-template-columns: repeat(2, 1fr);
-        margin: 50px auto 0;
     }
 }
 

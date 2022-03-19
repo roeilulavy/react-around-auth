@@ -2,12 +2,7 @@ import successIcon from "../images/icon/success.svg";
 import failIcon from "../images/icon/fail.svg";
 
 function InfoTooltip(props) {
-
-  console.log(props);
-  let success = false;
-  if(props.success === true){
-    success = true;
-  }
+  const success = props.success;
 
   return (
     <div
@@ -22,25 +17,19 @@ function InfoTooltip(props) {
           onClick={props.onClose}
         ></button>
         {success ? (
-          <>
             <img
               className="tooltip__image"
               src={successIcon}
               alt={"Success"}
             />
-            <p className="tooltip__message">Success! You have now been registered.</p>
-          </>
         ) : (
-          <>
             <img
               className="tooltip__image"
               src={failIcon}
               alt={"Fail"}
             />
-            <p className="tooltip__message">Oops, something went wrong! Please try again.</p>
-          </> 
         )}
-        
+        <p className="tooltip__message">{props.message}</p>
       </div>
     </div>
   );

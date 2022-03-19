@@ -1,4 +1,5 @@
 .header__id{
+  height: fit-content;
   font-family: 'Inter', Arial, sans-serif;
   font-weight: 500;
   font-size: 18px;

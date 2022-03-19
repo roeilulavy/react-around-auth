@@ -1,4 +1,4 @@
-import { Route, Switch, Redirect, withRouter, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import React, { useState } from "react";
 import ProtectedRoute from './ProtectedRoute';
 import * as auth from '../utils/auth';
@@ -12,18 +12,13 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
-import InfoTooltip from "./InfoTooltip";
 import "../index.css";
 import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
-function App() {
-  const history = useHistory();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [userEmail, setUserEmail] = useState("");
-  const [isInfoTolltipOpen, setIsInfoTolltipPopup] = useState(false);
-
-  const [success, setSuccess] = useState(false);
+const App = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userData, setUserData] = useState([]);
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -36,70 +31,50 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
 
-  React.useEffect(() => {
-    console.log("useEffect handleTokenCheck()")
-    console.log("Is Logged In = "+isLoggedIn)
-
-    async function handleTokenCheck() {
-      console.log(localStorage.getItem('jwt'))
-      if (localStorage.getItem('jwt')) {
-        console.log("Exist")
-        const jwt = localStorage.getItem('jwt');
-        auth.checkToken(jwt).then((res) => {
-          console.log(res)
-          if (res) {
-            setIsLoggedIn(true);
-            setUserEmail(res.data.email);
-            getUserData();
-            getCardsData();
-          }
-        });
-      } else {
-        setIsLoggedIn(false);
-      }
-    }
-    handleTokenCheck();
-  },[isLoggedIn]);
-
-  function handleLogin(password, email) {
-    auth
-      .signin(password, email)
-      .then((data) => {
-        console.log(data);
-        if (data.token) {
-          console.log("Login Successfuly: " + data);
-          setIsLoggedIn(true);
-          history.push("/");
-        }
-      })
-      .catch((err) => {
-        setSuccess(false);
-        setIsInfoTolltipPopup(true);
-        console.log(err);
-      });
+  const history = useHistory();
+  
+  const onRegister = () => {
+    history.push('/signin');
   }
 
-  function handleSignup(password, email) {
-    auth.signup(password, email).then((res) => {
-      console.log(res)
-      if (res.status === 400) {
-        setSuccess(false);
-        setIsInfoTolltipPopup(true);
-        console.error("Signup Error: Something went wrong." + res);
-      } else {
-        setSuccess(true);
-        setIsInfoTolltipPopup(true);
-      }
-    }).catch((err) => console.log(err));
-    setIsInfoTolltipPopup(true);
+  const onLogin = (userData) => {
+    setUserData(userData);
+    setLoggedIn(true);
   }
 
-  function handleLogout() {
+  const onLogout = () => {
     console.log("Logout Clicked")
     localStorage.removeItem('jwt');
-    setIsLoggedIn(false);
-    history.push("./signin");
+    setLoggedIn(false);
+    history.push("/signin");
   }
+
+  React.useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if(jwt) {
+      auth.checkToken(jwt).then((res) => {
+        if (res){
+          const data = {
+            email: res.data.email,
+            id: res.data._id
+          }
+
+          setLoggedIn(true);
+          setUserData(data);
+        }
+      })
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (loggedIn) {
+      history.push('/');
+      getUserData();
+      getCardsData();
+    } else {
+      history.push('/signin');
+    }
+  }, [loggedIn, history]);
 
   async function getUserData() {
     setIsLoading(true);
@@ -214,7 +189,6 @@ function App() {
     setIsEditAvatarPopup(false);
     setIsImagePopup(false);
     setIsDeleteCardPopupOpen(false);
-    setIsInfoTolltipPopup(false);
   }
 
   function handleEditAvatarClick() {
@@ -240,53 +214,19 @@ function App() {
         <div className="page__wrapper">
           <Switch>
             <Route path="/signin">
-              <Header
-                linkTitle={"Sing up"}
-                link={"/signup"}
-                button={"header__button"}
-              />
-              <Login handleLogin={handleLogin} />
-              {isInfoTolltipOpen && success ? (
-                <></>
-              ) : (
-                <InfoTooltip
-                  isOpen={isInfoTolltipOpen}
-                  onClose={closeAllPopups}
-                  success={false}
-                  message={"Oops, something went wrong! Please try again."}
-                />
-              )}
+              <Header page={"signin"} />
+              <Login onLogin={onLogin} />
             </Route>      
             <Route path="/signup">
-              <Header
-                linkTitle={"Log in"}
-                link={"/signin"}
-                button={"header__button"}
-              />
-              <Register handleSignup={handleSignup}/>
-              {success ? (
-                <InfoTooltip
-                  isOpen={isInfoTolltipOpen}
-                  onClose={closeAllPopups}
-                  success={true}
-                />
-              ) : (
-                <InfoTooltip
-                  isOpen={isInfoTolltipOpen}
-                  onClose={closeAllPopups}
-                  success={false}
-                />
-              )}
-              
+              <Header page={"signup"} />
+              <Register onRegister={onRegister} />
             </Route>
-            <ProtectedRoute exact path="/" isLoggedIn={isLoggedIn}>
-              <Header
-                link={""}
-                email={userEmail}
-                button={"header__button_active"}
-                onClick={handleLogout}
+            <ProtectedRoute exact path="/" loggedIn={loggedIn}>
+              <Header 
+                page={"home"}
+                email={userData.email}
+                onLogout={onLogout}
               />
-
               <Main
                 isLoading={isLoading}
                 onEditAvatarClick={handleEditAvatarClick}
@@ -332,9 +272,6 @@ function App() {
 
               <Footer />              
             </ProtectedRoute>
-            <Route path="/*">
-              {isLoggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
-            </Route>
           </Switch>
         </div>
       </div>
@@ -342,4 +279,4 @@ function App() {
   );
 }
 
-export default withRouter(App);
+export default App;
