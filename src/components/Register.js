@@ -1,46 +1,21 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import InfoTooltip from "./InfoTooltip";
-import * as auth from "../utils/auth";
+
 
 const Register = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
-
-  const [isInfoTolltipOpen, setIsInfoTolltipPopup] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    auth.signup(email, password).then(() => {
-      setMessage('Success! You have now been registered.');
-      setSuccess(true);
-      setIsInfoTolltipPopup(true)
-    })
-    .catch((err) => {
-      console.log(err)
-      setMessage('Oops, something went wrong! Please try again.');
-      setSuccess(false);
-      setIsInfoTolltipPopup(true)
-    });
-  };
-
-  function onClose() {
-    setIsInfoTolltipPopup(false);
-    if(success === true) {
-      props.onRegister();
+    if (!email || !password) {
+      return;
     }
-  }
+    props.onRegister(email, password);
+  };
 
   return (
     <div className="register">
-      <InfoTooltip
-        isOpen={isInfoTolltipOpen}
-        onClose={onClose}
-        success={success}
-        message={message}
-      />
       <p className="register__header">Sign up</p>
       <form onSubmit={handleSubmit} className="register__form">
         <input

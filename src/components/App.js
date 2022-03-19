@@ -18,6 +18,7 @@ import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 const App = () => {
+  const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [userData, setUserData] = useState({});
@@ -36,8 +37,19 @@ const App = () => {
 
   const history = useHistory();
   
-  const onRegister = () => {
-    history.push('/signin');
+  const onRegister = (email, password) => {
+    auth.signup(email, password).then(() => {
+      setSuccess(true);
+      setMessage('Success! You have now been registered.');
+      setIsInfoTolltipPopup(true);
+      history.push('/signin');
+    })
+    .catch((err) => {
+      console.log(err);
+      setSuccess(false);
+      setMessage('Oops, something went wrong! Please try again.');
+      setIsInfoTolltipPopup(true);
+    });
   }
 
   const onLogin = (email, password) => {
@@ -53,6 +65,7 @@ const App = () => {
       }
     }).catch((err) => {
       console.log(err);
+      setSuccess(false);
       setMessage('Oops, something went wrong! Please try again.');
       setIsInfoTolltipPopup(true);
     });
@@ -244,7 +257,7 @@ const App = () => {
           <InfoTooltip
             isOpen={isInfoTolltipOpen}
             onClose={closeAllPopups}
-            success={false}
+            success={success}
             message={message}
           />
           <Switch>
