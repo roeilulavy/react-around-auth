@@ -12,17 +12,20 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
+import InfoTooltip from './InfoTooltip';
 import "../index.css";
 import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 const App = () => {
+  const [message, setMessage] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [userData, setUserData] = useState({});
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
 
+  const [isInfoTolltipOpen, setIsInfoTolltipPopup] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopup] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopup] = useState(false);
@@ -37,9 +40,22 @@ const App = () => {
     history.push('/signin');
   }
 
-  const onLogin = (userData) => {
-    setUserData(userData);
-    setLoggedIn(true);
+  const onLogin = (email, password) => {
+    auth.signin(email, password).then((data) => {
+      if(data.token) {
+        const userData = {
+          email: email,
+          token: data.token
+        }
+
+        setUserData(userData);
+        setLoggedIn(true);
+      }
+    }).catch((err) => {
+      console.log(err);
+      setMessage('Oops, something went wrong! Please try again.');
+      setIsInfoTolltipPopup(true);
+    });
   }
 
   const onLogout = () => {
@@ -201,6 +217,7 @@ const App = () => {
     setIsEditAvatarPopup(false);
     setIsImagePopup(false);
     setIsDeleteCardPopupOpen(false);
+    setIsInfoTolltipPopup(false);
   }
 
   function handleEditAvatarClick() {
@@ -224,6 +241,12 @@ const App = () => {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__wrapper">
+          <InfoTooltip
+            isOpen={isInfoTolltipOpen}
+            onClose={closeAllPopups}
+            success={false}
+            message={message}
+          />
           <Switch>
             <Route path="/signin">
               <Header page={"signin"} />
