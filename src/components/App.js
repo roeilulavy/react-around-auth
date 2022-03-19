@@ -1,3 +1,9 @@
+import { Route, Switch, useHistory } from 'react-router-dom';
+import React, { useState } from "react";
+import ProtectedRoute from './ProtectedRoute';
+import * as auth from '../utils/auth';
+import Login from "./Login";
+import Register from "./Register";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -8,10 +14,12 @@ import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
 import "../index.css";
 import api from "../utils/api";
-import React, { useState } from "react";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
-function App() {
+const App = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userData, setUserData] = useState([]);
+
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
 
@@ -23,43 +31,82 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
 
-  React.useEffect(() => {
-    async function getUserData() {
-      setIsLoading(true);
-      try {
-        const userInfo = await api.getUserInfo();
+  const history = useHistory();
+  
+  const onRegister = () => {
+    history.push('/signin');
+  }
 
-        if (userInfo) {
-          setCurrentUser(userInfo);
+  const onLogin = (userData) => {
+    setUserData(userData);
+    setLoggedIn(true);
+  }
+
+  const onLogout = () => {
+    console.log("Logout Clicked")
+    localStorage.removeItem('jwt');
+    setLoggedIn(false);
+    history.push("/signin");
+  }
+
+  React.useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if(jwt) {
+      auth.checkToken(jwt).then((res) => {
+        if (res){
+          const data = {
+            email: res.data.email,
+            id: res.data._id
+          }
+
+          setLoggedIn(true);
+          setUserData(data);
         }
-      } catch (error) {
-        console.log("Error! ", error);
-        alert("Something went wrong getting user data..");
-      } finally {
-        setIsLoading(false);
-      }
+      })
     }
-    getUserData();
   }, []);
 
   React.useEffect(() => {
-    async function getCardsData() {
-      setIsLoading(true);
-      try {
-        const cardsData = await api.getInitialCards();
-
-        if (cardsData) {
-          setCards(cardsData);
-        }
-      } catch (error) {
-        console.log("Error! ", error);
-        alert("Something went wrong getting cards data..");
-      } finally {
-        setIsLoading(false);
-      }
+    if (loggedIn) {
+      history.push('/');
+      getUserData();
+      getCardsData();
+    } else {
+      history.push('/signin');
     }
-    getCardsData();
-  }, []);
+  }, [loggedIn, history]);
+
+  async function getUserData() {
+    setIsLoading(true);
+    try {
+      const userInfo = await api.getUserInfo();
+
+      if (userInfo) {
+        setCurrentUser(userInfo);
+      }
+    } catch (error) {
+      console.log("Error! ", error);
+      alert("Something went wrong getting user data..");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function getCardsData() {
+    setIsLoading(true);
+    try {
+      const cardsData = await api.getInitialCards();
+
+      if (cardsData) {
+        setCards(cardsData);
+      }
+    } catch (error) {
+      console.log("Error! ", error);
+      alert("Something went wrong getting cards data..");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   async function handleCardLike(card) {
     const isLiked = card.likes.some((item) => item._id === currentUser._id);
@@ -165,51 +212,67 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__wrapper">
-          <Header />
-          <Main
-            isLoading={isLoading}
-            onEditAvatarClick={handleEditAvatarClick}
-            onEditProfileClick={handleEditProfileClick}
-            onAddPlaceClick={handleAddPlaceClick}
-            cards={cards}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            onCardDelete={handleCardDelete}
-          />
+          <Switch>
+            <Route path="/signin">
+              <Header page={"signin"} />
+              <Login onLogin={onLogin} />
+            </Route>      
+            <Route path="/signup">
+              <Header page={"signup"} />
+              <Register onRegister={onRegister} />
+            </Route>
+            <ProtectedRoute exact path="/" loggedIn={loggedIn}>
+              <Header 
+                page={"home"}
+                email={userData.email}
+                onLogout={onLogout}
+              />
+              <Main
+                isLoading={isLoading}
+                onEditAvatarClick={handleEditAvatarClick}
+                onEditProfileClick={handleEditProfileClick}
+                onAddPlaceClick={handleAddPlaceClick}
+                cards={cards}
+                onCardClick={handleCardClick}
+                onCardLike={handleCardLike}
+                onCardDelete={handleCardDelete}
+              />
 
-          <ImagePopup
-            selectedCard={selectedCard}
-            isOpen={isImagePopupOpen}
-            onClose={closeAllPopups}
-          />
+              <ImagePopup
+                selectedCard={selectedCard}
+                isOpen={isImagePopupOpen}
+                onClose={closeAllPopups}
+              />
 
-          <EditProfilePopup
-            isOpen={isEditProfilePopupOpen}
-            onClose={closeAllPopups}
-            onUpdateUser={handleUpdateUser}
-          />
+              <EditProfilePopup
+                isOpen={isEditProfilePopupOpen}
+                onClose={closeAllPopups}
+                onUpdateUser={handleUpdateUser}
+              />
 
-          <EditAvatarPopup
-            isOpen={isEditAvatarPopupOpen}
-            onClose={closeAllPopups}
-            onUpdateAvatar={handleUpadeAvatar}
-          />
+              <EditAvatarPopup
+                isOpen={isEditAvatarPopupOpen}
+                onClose={closeAllPopups}
+                onUpdateAvatar={handleUpadeAvatar}
+              />
 
-          <AddPlacePopup
-            isOpen={isAddPlacePopupOpen}
-            onClose={closeAllPopups}
-            onUpdateCard={handleAddPlaceSubmit}
-          />
+              <AddPlacePopup
+                isOpen={isAddPlacePopupOpen}
+                onClose={closeAllPopups}
+                onUpdateCard={handleAddPlaceSubmit}
+              />
 
-          <PopupWithForm
-            isOpen={isDeleteCardPopupOpen}
-            onClose={closeAllPopups}
-            name="delete-card"
-            title="Are you sure?"
-            buttonText="Yes"
-          ></PopupWithForm>
+              <PopupWithForm
+                isOpen={isDeleteCardPopupOpen}
+                onClose={closeAllPopups}
+                name="delete-card"
+                title="Are you sure?"
+                buttonText="Yes"
+              />
 
-          <Footer />
+              <Footer />              
+            </ProtectedRoute>
+          </Switch>
         </div>
       </div>
     </CurrentUserContext.Provider>
