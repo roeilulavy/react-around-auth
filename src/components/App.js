@@ -18,7 +18,7 @@ import CurrentUserContext from "../contexts/CurrentUserContext";
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userData, setUserData] = useState([]);
+  const [userData, setUserData] = useState({});
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -75,6 +75,18 @@ const App = () => {
       history.push('/signin');
     }
   }, [loggedIn, history]);
+
+  React.useEffect(() => {
+    const closeByEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeAllPopups();
+      }
+    }
+
+    document.addEventListener('keydown', closeByEscape)
+    
+    return () => document.removeEventListener('keydown', closeByEscape)
+  }, []);
 
   async function getUserData() {
     setIsLoading(true);
