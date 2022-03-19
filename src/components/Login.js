@@ -1,55 +1,25 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import InfoTooltip from "./InfoTooltip";
-import * as auth from "../utils/auth";
 
 const Login = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
 
-  const [isInfoTolltipOpen, setIsInfoTolltipPopup] = useState(false);
-
-  const resetForm = () => {
+  React.useEffect(() => {
     setEmail('');
     setPassword('');
-    setMessage('');
-  }
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email || !password) {
       return;
     }
-    auth.signin(email, password).then((data) => {
-      if(!data) {
-        setMessage('Oops, something went wrong! Please try again.');
-        setIsInfoTolltipPopup(true);
-      }
-      if(data.token) {
-        resetForm();
-        const userData = {
-          email: email,
-          token: data.token
-        }
-        props.onLogin(userData);
-        return;
-      }
-    }).catch(err => console.log(err));
-  }
-
-  function onClose() {
-    setIsInfoTolltipPopup(false);
+    props.onLogin(email, password);
   }
 
   return (
     <div className="login">
-      <InfoTooltip
-        isOpen={isInfoTolltipOpen}
-        onClose={onClose}
-        success={false}
-        message={message}
-      />
       <p className="login__header">Log in</p>
       <form onSubmit={handleSubmit} className="login__form">
         <input

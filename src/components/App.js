@@ -12,17 +12,21 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
+import InfoTooltip from './InfoTooltip';
 import "../index.css";
 import api from "../utils/api";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 const App = () => {
+  const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userData, setUserData] = useState([]);
+  const [userData, setUserData] = useState({});
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
 
+  const [isInfoTolltipOpen, setIsInfoTolltipPopup] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopup] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopup] = useState(false);
@@ -33,13 +37,38 @@ const App = () => {
 
   const history = useHistory();
   
-  const onRegister = () => {
-    history.push('/signin');
+  const onRegister = (email, password) => {
+    auth.signup(email, password).then(() => {
+      setSuccess(true);
+      setMessage('Success! You have now been registered.');
+      setIsInfoTolltipPopup(true);
+      history.push('/signin');
+    })
+    .catch((err) => {
+      console.log(err);
+      setSuccess(false);
+      setMessage('Oops, something went wrong! Please try again.');
+      setIsInfoTolltipPopup(true);
+    });
   }
 
-  const onLogin = (userData) => {
-    setUserData(userData);
-    setLoggedIn(true);
+  const onLogin = (email, password) => {
+    auth.signin(email, password).then((data) => {
+      if(data.token) {
+        const userData = {
+          email: email,
+          token: data.token
+        }
+
+        setUserData(userData);
+        setLoggedIn(true);
+      }
+    }).catch((err) => {
+      console.log(err);
+      setSuccess(false);
+      setMessage('Oops, something went wrong! Please try again.');
+      setIsInfoTolltipPopup(true);
+    });
   }
 
   const onLogout = () => {
@@ -62,7 +91,7 @@ const App = () => {
           setLoggedIn(true);
           setUserData(data);
         }
-      })
+      }).catch((err) => console.error(err));
     }
   }, []);
 
@@ -75,6 +104,18 @@ const App = () => {
       history.push('/signin');
     }
   }, [loggedIn, history]);
+
+  React.useEffect(() => {
+    const closeByEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeAllPopups();
+      }
+    }
+
+    document.addEventListener('keydown', closeByEscape)
+    
+    return () => document.removeEventListener('keydown', closeByEscape)
+  }, []);
 
   async function getUserData() {
     setIsLoading(true);
@@ -189,6 +230,7 @@ const App = () => {
     setIsEditAvatarPopup(false);
     setIsImagePopup(false);
     setIsDeleteCardPopupOpen(false);
+    setIsInfoTolltipPopup(false);
   }
 
   function handleEditAvatarClick() {
@@ -212,6 +254,12 @@ const App = () => {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__wrapper">
+          <InfoTooltip
+            isOpen={isInfoTolltipOpen}
+            onClose={closeAllPopups}
+            success={success}
+            message={message}
+          />
           <Switch>
             <Route path="/signin">
               <Header page={"signin"} />
