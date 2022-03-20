@@ -16,7 +16,7 @@ export const signup = (email, password) => {
     },
     body: JSON.stringify({ password, email }),
   })
-    .then((response) => checkResponse(response));
+    .then(checkResponse);
 };
 
 export const signin = (email, password) => {
@@ -28,7 +28,7 @@ export const signin = (email, password) => {
     },
     body: JSON.stringify({ password, email }),
   })
-    .then((response) => checkResponse(response))
+    .then(checkResponse)
     .then((data) => {
       if (data.token) {
         localStorage.setItem("jwt", data.token);
@@ -46,6 +46,6 @@ export const checkToken = (token) => {
       Authorization: `Bearer ${token}`,
     },
   })
-    .then((res) => res.json())
+    .then(checkResponse)
     .then((data) => data)
 };
