@@ -41,15 +41,14 @@ const App = () => {
     auth.signup(email, password).then(() => {
       setSuccess(true);
       setMessage('Success! You have now been registered.');
-      setIsInfoTolltipPopup(true);
       history.push('/signin');
     })
     .catch((err) => {
       console.log(err);
       setSuccess(false);
       setMessage('Oops, something went wrong! Please try again.');
-      setIsInfoTolltipPopup(true);
     });
+    setIsInfoTolltipPopup(true);
   }
 
   const onLogin = (email, password) => {
