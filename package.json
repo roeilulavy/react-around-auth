@@ -23,7 +23,7 @@
   },
   "author": "Roei Lulavy",
   "license": "ISC",
-  "homepage": "https://roeilulavy.github.io/around-react",
+  "homepage": "https://roeilulavy.github.io/react-around-auth/",
   "eslintConfig": {
     "extends": [
       "react-app",
