@@ -1,8 +1,10 @@
 Around the U.S. project on React, featuring authorization and registration.
 
-This repository will contain your own front-end project on React with added authorization and registration features.
-Start working with your previously built front end code from Sprint 11.
+In this app you can Register and Login, upload new images, and change your name and avatar profile picture,
+You can like and dislike other users images as well.
 
-All authorization, registration and token requests must go through to the server running on [https://register.nomoreparties.co](https://register.nomoreparties.co/).
+You can use an existing account => testuser1@gmail.com , password => 123456
 
-Good luck!
+Link to the project: https://roeilulavy.github.io/react-around-auth/
+
+Have fun!
