@@ -19,6 +19,7 @@
 ---
 
 **_The project was done according figma design like in real tech job_**
+
 **_The project is connected to MongoDB Database_**
 
 ---
