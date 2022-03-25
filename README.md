@@ -1,7 +1,26 @@
-Around the U.S. project on React, featuring authorization and registration.
+# Around the U.S. project on React, featuring authorization and registration.
 
-In this app you can Register and Login, upload new images, and change your name and avatar profile picture,
-You can like and dislike other users images as well.
+## This website is a photos share platform
+
+**_In this app you can:_**
+- Register
+- Login
+- Change your name, description and avatar profile picture
+- Upload new images
+- like and dislike other users images
+
+**_The project contains_**
+- Email validation
+- Password validation
+- Links validation
+- Error & Success popups
+- Popups for editing
+
+---
+
+**_The project was done according figma design like in real tech job_**
+
+---
 
 You can use an existing account => testuser1@gmail.com , password => 123456
 
