@@ -26,6 +26,6 @@ You can use an existing account => testuser1@gmail.com , password => 123456
 
 Link to the project: https://roeilulavy.github.io/react-around-auth/
 
-* Note this is a Responsive website that adjust itself according to the device it's on.
+- Note this is a Responsive website that adjust itself according to the device it's on.
 
 Have fun!
