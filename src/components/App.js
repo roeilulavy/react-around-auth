@@ -19,6 +19,7 @@ import CurrentUserContext from "../contexts/CurrentUserContext";
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [userData, setUserData] = useState([]);
+  const [token, setToken] = useState(localStorage.getItem("jwt"));
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -38,81 +39,112 @@ const App = () => {
   }
 
   const onLogin = (userData) => {
-    setUserData(userData);
+    setToken(userData.token);
+    // setUserData(userData);
     setLoggedIn(true);
   }
 
   const onLogout = () => {
-    console.log("Logout Clicked")
     localStorage.removeItem('jwt');
     setLoggedIn(false);
     history.push("/signin");
   }
 
   React.useEffect(() => {
-    const jwt = localStorage.getItem('jwt');
-    if(jwt) {
-      auth.checkToken(jwt).then((res) => {
-        if (res){
-          const data = {
-            email: res.data.email,
-            id: res.data._id
-          }
-
-          setLoggedIn(true);
-          setUserData(data);
-        }
-      })
+    const jwt = localStorage.getItem("jwt");
+    if(!jwt) {
+      return;
     }
+    auth.checkToken(jwt).then((res) => {
+      if (res){
+        const data = {
+          email: res.data.email,
+          id: res.data._id
+        }
+
+        setUserData(data);
+        setLoggedIn(true);
+      }
+    })
   }, []);
 
   React.useEffect(() => {
     if (loggedIn) {
       history.push('/');
-      getUserData();
-      getCardsData();
+
+      async function loadPage() {
+        setIsLoading(true);
+
+        try{
+          const userInfo = await api.getUserInfo(token);
+
+          if (userInfo) {
+            setCurrentUser(userInfo);
+          } else {
+            throw new Error("Failed to load userInfo");
+          }
+
+          const cardsData = await api.getInitialCards(token);
+
+          if (cardsData) {
+            setCards(cardsData);
+          } else {
+            throw new Error("Failed to load cards");
+          }
+
+        } catch (error) {
+          console.log("Error! ", error);
+          alert("Something went wrong getting user data..");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      // async function getUserData() {
+      //   setIsLoading(true);
+      //   try {
+      //     const userInfo = await api.getUserInfo(token);
+
+      //     if (userInfo) {
+      //       setCurrentUser(userInfo);
+      //     }
+      //   } catch (error) {
+      //     console.log("Error! ", error);
+      //     alert("Something went wrong getting user data..");
+      //   } finally {
+      //     setIsLoading(false);
+      //   }
+      // }
+
+      // async function getCardsData() {
+      //   setIsLoading(true);
+      //   try {
+      //     const cardsData = await api.getInitialCards(token);
+
+      //     if (cardsData) {
+      //       setCards(cardsData);
+      //     }
+      //   } catch (error) {
+      //     console.log("Error! ", error);
+      //     alert("Something went wrong getting cards data..");
+      //   } finally {
+      //     setIsLoading(false);
+      //   }
+      // }
+
+      // getUserData();
+      // getCardsData();
+      loadPage();
     } else {
       history.push('/signin');
     }
-  }, [loggedIn, history]);
-
-  async function getUserData() {
-    setIsLoading(true);
-    try {
-      const userInfo = await api.getUserInfo();
-
-      if (userInfo) {
-        setCurrentUser(userInfo);
-      }
-    } catch (error) {
-      console.log("Error! ", error);
-      alert("Something went wrong getting user data..");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function getCardsData() {
-    setIsLoading(true);
-    try {
-      const cardsData = await api.getInitialCards();
-
-      if (cardsData) {
-        setCards(cardsData);
-      }
-    } catch (error) {
-      console.log("Error! ", error);
-      alert("Something went wrong getting cards data..");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  }, [history, loggedIn, token]);
 
   async function handleCardLike(card) {
     const isLiked = card.likes.some((item) => item._id === currentUser._id);
 
     try {
-      const updatedCard = await api.changeLikeCardStatus(card._id, !isLiked);
+      const updatedCard = await api.changeLikeCardStatus(card._id, !isLiked, token);
 
       if (updatedCard) {
         setCards((cards) =>
@@ -131,7 +163,7 @@ const App = () => {
     const cardId = card;
 
     try {
-      const deletedCard = await api.deleteCard(card._id);
+      const deletedCard = await api.deleteCard(card._id, token);
       if (deletedCard) {
         setCards((cards) => cards.filter((item) => item._id !== cardId._id));
       }
@@ -143,7 +175,7 @@ const App = () => {
 
   async function handleAddPlaceSubmit(name, link) {
     try {
-      const newCard = await api.addNewCard(name, link);
+      const newCard = await api.addNewCard(name, link, token);
 
       if (newCard) {
         setCards([newCard, ...cards]);
@@ -155,9 +187,9 @@ const App = () => {
     }
   }
 
-  async function handleUpdateUser({ name, description }) {
+  async function handleUpdateUser({ name, description}) {
     try {
-      const updatedUserInfo = await api.setUserInfo(name, description);
+      const updatedUserInfo = await api.setUserInfo(name, description, token);
 
       if (updatedUserInfo) {
         setCurrentUser(updatedUserInfo);
@@ -171,7 +203,7 @@ const App = () => {
 
   async function handleUpadeAvatar({ avatar }) {
     try {
-      const newAvatar = await api.setUserAvatar(avatar);
+      const newAvatar = await api.setUserAvatar(avatar, token);
 
       if (newAvatar) {
         setCurrentUser({ ...currentUser, avatar: newAvatar.avatar });

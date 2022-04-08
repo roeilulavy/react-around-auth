@@ -11,25 +11,31 @@ class Api {
     return Promise.reject(`Error ${response.status}, ${response.statusText}`);
   }
 
-  async getInitialCards() {
+  async getInitialCards(token) {
     const response = await fetch(`${this._url}/cards`, {
-      headers: { authorization: this._token },
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
     });
     return this._checkResponse(response);
   }
 
-  async getUserInfo() {
+  async getUserInfo(token) {
     const response = await fetch(`${this._url}/users/me`, {
-      headers: { authorization: this._token },
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
     });
     return this._checkResponse(response);
   }
 
-  async setUserInfo(name, about) {
+  async setUserInfo(name, about, token) {
     const response = await fetch(`${this._url}/users/me`, {
       method: "PATCH",
       headers: {
-        authorization: this._token,
+        authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ name: name, about: about }),
@@ -37,11 +43,11 @@ class Api {
     return this._checkResponse(response);
   }
 
-  async setUserAvatar(avatar) {
+  async setUserAvatar(avatar, token) {
     const response = await fetch(`${this._url}/users/me/avatar`, {
       method: "PATCH",
       headers: {
-        authorization: this._token,
+        authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ avatar: avatar }),
@@ -49,11 +55,11 @@ class Api {
     return this._checkResponse(response);
   }
 
-  async addNewCard(name, link) {
+  async addNewCard(name, link, token) {
     const response = await fetch(`${this._url}/cards`, {
       method: "POST",
       headers: {
-        authorization: this._token,
+        authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ name: name, link: link }),
@@ -61,25 +67,34 @@ class Api {
     return this._checkResponse(response);
   }
 
-  async deleteCard(cardId) {
+  async deleteCard(cardId, token) {
     const response = await fetch(`${this._url}/cards/${cardId}`, {
       method: "DELETE",
-      headers: { authorization: this._token },
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
     });
     return this._checkResponse(response);
   }
 
-  async changeLikeCardStatus(cardId, isLiked) {
+  async changeLikeCardStatus(cardId, isLiked, token) {
     if (isLiked) {
       const response = await fetch(`${this._url}/cards/likes/${cardId}`, {
         method: "PUT",
-        headers: { authorization: this._token },
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
       });
       return this._checkResponse(response);
     } else {
       const response = await fetch(`${this._url}/cards/likes/${cardId}`, {
         method: "DELETE",
-        headers: { authorization: this._token },
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
       });
       return this._checkResponse(response);
     }
@@ -87,7 +102,7 @@ class Api {
 }
 
 export default new Api({
-  baseUrl: "localhost:3000",
+  baseUrl: "localhost:3001",
   // baseUrl: "https://around.nomoreparties.co/v1/group-12",
   // token: "03197c45-af19-4b1d-a978-69b8bedd3378",
 });
