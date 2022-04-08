@@ -48,10 +48,12 @@ function Main({
         ></button>
       </section>
 
-      <>{isLoading ? <Spinner /> : null}</>
 
       <section className="elements">
-        {cards.map((card) => {
+        
+        {isLoading ? <Spinner /> :
+        
+        cards.map((card) => {
           return (
             <Card
               card={card}
