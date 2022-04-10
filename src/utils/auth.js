@@ -1,4 +1,4 @@
-export const BASE_URL = "https://register.nomoreparties.co";
+export const BASE_URL = "https://api.roy-server.students.nomoreparties.sbs";
 
 function checkResponse(response) {
   if (response.ok) {
@@ -30,8 +30,8 @@ export const signin = (email, password) => {
   })
     .then(checkResponse)
     .then((data) => {
-      if (data.token) {
-        localStorage.setItem("jwt", data.token);
+      if (data) {
+        localStorage.setItem("jwt", data);
         return data;
       }
     })
@@ -47,5 +47,8 @@ export const checkToken = (token) => {
     },
   })
     .then(checkResponse)
-    .then((data) => data)
+    .then((data) => {
+      console.log(data);
+      return data;
+    })
 };

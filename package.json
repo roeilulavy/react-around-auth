@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "Sprint 10 project",
   "private": true,
+  "author": "Roei Lulavy",
+  "license": "ISC",
+  "homepage": "https://www.roy-server.students.nomoreparties.sbs",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",
@@ -19,11 +22,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "deployssh": "npm run build && scp -r -i ~/.ssh/id_ed25519 ./build/* roy-server.students.nomoreparties.sbs:/home/roei19931/frontEnd"
   },
-  "author": "Roei Lulavy",
-  "license": "ISC",
-  "homepage": "https://roeilulavy.github.io/react-around-auth/",
   "eslintConfig": {
     "extends": [
       "react-app",
