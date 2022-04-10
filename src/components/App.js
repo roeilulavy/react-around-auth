@@ -85,13 +85,8 @@ const App = () => {
     if(jwt) {
       auth.checkToken(jwt).then((res) => {
         if (res){
-          const data = {
-            email: res.data.email,
-            id: res.data._id
-          }
-
-          setUserData(data);
-          setLoggedIn(true);
+            setUserData(res);
+            setLoggedIn(true);
         }
       }).catch((err) => console.error(err));
     }
