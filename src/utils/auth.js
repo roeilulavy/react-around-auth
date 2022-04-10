@@ -1,59 +1,57 @@
-// export const BASE_URL = "https://register.nomoreparties.co";
 export const BASE_URL = "https://roy-server.students.nomoreparties.sbs";
 
-export const signup = (email, password ) => {
-  return fetch(`${BASE_URL}/signup`, {
+function checkResponse(response) {
+  console.log(response)
+  if (response.ok) {
+      return response.json();
+  }
+
+  if (response.status === 409) {
+    return Promise.reject({status: response.status, message: 'User already exist!'});
+  } else if (response.status === 500) {
+    return Promise.reject({status: response.status, message: 'Internal Server Error'});
+  } else {
+    return Promise.reject({status: response.status, message: response.statusText});
+  }
+}
+
+export async function signup (email, password ) {
+  const response = await fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ password, email }),
-  })
-    .then((response) => {
-      try {
-        return response.json();
-      } catch (e) {
-        return console.error("Response catch Error: " + e);
-      }
-    })
-    .catch((err) => console.error("Error: " + err));
+  });
+  return checkResponse(response);    
 };
 
-export const signin = (email, password) => {
-  return fetch(`${BASE_URL}/signin`, {
+export async function signin (email, password ) {
+  const response = await fetch(`${BASE_URL}/signin`, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ password, email }),
-  })
-    .then((response) => {
-      try {
-          return response.json();
-      } catch (e) {
-        return console.error("Response catch Error: " + e);
-      }
-    })
-    .then((data) => {
-      if (data.token) {
-        localStorage.setItem("jwt", data.token);
-        return data;
-      }
-    })
-    .catch((err) => console.log(err));
+  });
+  return checkResponse(response);    
 };
 
-export const checkToken = (token) => {
-  return fetch(`${BASE_URL}/users/me`, {
+export async function checkToken (token) {
+
+  if (!token) {
+    console.error('There is no Token')
+    throw new Error('No token found');
+  }
+
+  const response = await fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-  })
-    .then((res) => res.json())
-    .then((data) => data)
-    .catch((err) => console.error(err));
+  });
+    return checkResponse(response);
 };

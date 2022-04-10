@@ -39,27 +39,34 @@ const App = () => {
   }
 
   const onLogin = (userData) => {
+    localStorage.setItem("jwt", userData.token);
     setToken(userData.token);
-    // setUserData(userData);
+    setUserData(userData.email);
     setLoggedIn(true);
   }
 
   const onLogout = () => {
     localStorage.removeItem('jwt');
+    setUserData({});
+    setCurrentUser({});
     setLoggedIn(false);
     history.push("/signin");
   }
 
   React.useEffect(() => {
     const jwt = localStorage.getItem("jwt");
+    console.log(jwt)
     if(!jwt) {
+      console.log('No Token')
       return;
     }
+
     auth.checkToken(jwt).then((res) => {
       if (res){
+        console.log(res)
         const data = {
-          email: res.data.email,
-          id: res.data._id
+          email: res.email,
+          id: res._id
         }
 
         setUserData(data);

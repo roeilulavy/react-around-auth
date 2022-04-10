@@ -14,15 +14,15 @@ const Register = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     auth.signup(email, password).then((res) => {
-      if(!res.error){
+      if (res) {
         setMessage('Success! You have now been registered.');
         setSuccess(true);
-      } else {
-        setMessage('Oops, something went wrong! Please try again.');
-        setSuccess(false);
       }
-      setIsInfoTolltipPopup(true)
-    });
+    }).catch((err) => {
+      setMessage(err.message);
+      setSuccess(false);
+    })
+    setIsInfoTolltipPopup(true)
   };
 
   function onClose() {

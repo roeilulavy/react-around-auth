@@ -1,7 +1,7 @@
 class Api {
   constructor(options) {
     this._url = options.baseUrl;
-    this._token = options.token;
+    // this._token = options.token;
   }
 
   _checkResponse(response) {
@@ -102,7 +102,5 @@ class Api {
 }
 
 export default new Api({
-  baseUrl: "https://roy-server.students.nomoreparties.sbs",
-  // baseUrl: "https://around.nomoreparties.co/v1/group-12",
-  // token: "03197c45-af19-4b1d-a978-69b8bedd3378",
+  baseUrl: "https://roy-server.students.nomoreparties.sbs"
 });

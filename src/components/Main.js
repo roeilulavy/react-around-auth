@@ -48,12 +48,10 @@ function Main({
         ></button>
       </section>
 
+      {isLoading ? <Spinner /> :
 
       <section className="elements">
-        
-        {isLoading ? <Spinner /> :
-        
-        cards.map((card) => {
+        {cards.map((card) => {
           return (
             <Card
               card={card}
@@ -68,6 +66,7 @@ function Main({
           );
         })}
       </section>
+      }
     </main>
   );
 }
