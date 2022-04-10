@@ -17,13 +17,6 @@ class Api {
     });
     return this._checkResponse(response);
   }
-  
-  async getInitialCards(token) {
-    const response = await fetch(`${this._url}/cards`, {
-      headers: { authorization: `Bearer ${token}` },
-    });
-    return this._checkResponse(response);
-  }
 
   async setUserInfo(name, about, token) {
     const response = await fetch(`${this._url}/users/me`, {
@@ -45,6 +38,13 @@ class Api {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ avatar: avatar }),
+    });
+    return this._checkResponse(response);
+  }
+
+  async getInitialCards(token) {
+    const response = await fetch(`${this._url}/cards`, {
+      headers: { authorization: `Bearer ${token}` },
     });
     return this._checkResponse(response);
   }
@@ -71,13 +71,13 @@ class Api {
 
   async changeLikeCardStatus(cardId, isLiked, token) {
     if (isLiked) {
-      const response = await fetch(`${this._url}/cards/likes/${cardId}`, {
+      const response = await fetch(`${this._url}/cards/${cardId}/likes`, {
         method: "PUT",
         headers: { authorization: `Bearer ${token}` },
       });
       return this._checkResponse(response);
     } else {
-      const response = await fetch(`${this._url}/cards/likes/${cardId}`, {
+      const response = await fetch(`${this._url}/cards/${cardId}/likes`, {
         method: "DELETE",
         headers: { authorization: `Bearer ${token}` },
       });

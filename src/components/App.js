@@ -119,6 +119,7 @@ const App = () => {
 
           if (cardsData) {
             setCards(cardsData);
+            console.log(cardsData);
           }
         } catch (error) {
           console.log("Error! ", error);
