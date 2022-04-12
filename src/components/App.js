@@ -55,7 +55,6 @@ const App = () => {
   const onLogin = (email, password) => {
     auth.signin(email, password).then((data) => {
       if(data) {
-        console.log(data);
         const userData = {
           email: email,
           token: data
@@ -119,7 +118,6 @@ const App = () => {
 
           if (cardsData) {
             setCards(cardsData);
-            console.log(cardsData);
           }
         } catch (error) {
           console.log("Error! ", error);
