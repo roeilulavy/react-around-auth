@@ -45,7 +45,7 @@ const App = () => {
       history.push('/signin');
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       setSuccess(false);
       setMessage('Oops, something went wrong! Please try again.');
     });
@@ -55,7 +55,6 @@ const App = () => {
   const onLogin = (email, password) => {
     auth.signin(email, password).then((data) => {
       if(data) {
-        console.log(data);
         const userData = {
           email: email,
           token: data
@@ -65,7 +64,7 @@ const App = () => {
         setLoggedIn(true);
       }
     }).catch((err) => {
-      console.log(err);
+      console.error(err);
       setSuccess(false);
       setMessage('Oops, something went wrong! Please try again.');
       setIsInfoTolltipPopup(true);
@@ -85,13 +84,8 @@ const App = () => {
     if(jwt) {
       auth.checkToken(jwt).then((res) => {
         if (res){
-          const data = {
-            email: res.data.email,
-            id: res.data._id
-          }
-
-          setUserData(data);
-          setLoggedIn(true);
+            setUserData(res);
+            setLoggedIn(true);
         }
       }).catch((err) => console.error(err));
     }
@@ -110,7 +104,7 @@ const App = () => {
             setCurrentUser(userInfo);
           }
         } catch (error) {
-          console.log("Error! ", error);
+          console.error("Error! ", error);
           alert("Something went wrong getting user data..");
         } finally {
           setIsLoading(false);
@@ -126,7 +120,7 @@ const App = () => {
             setCards(cardsData);
           }
         } catch (error) {
-          console.log("Error! ", error);
+          console.error("Error! ", error);
           alert("Something went wrong getting cards data..");
         } finally {
           setIsLoading(false);
@@ -167,21 +161,19 @@ const App = () => {
         );
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong with HandleLike..");
     }
   }
 
   async function handleCardDelete(card) {
-    const cardId = card;
-
     try {
       const deletedCard = await api.deleteCard(card._id, token);
       if (deletedCard) {
-        setCards((cards) => cards.filter((item) => item._id !== cardId._id));
+        setCards((cards) => cards.filter((item) => item._id !== card._id));
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong with handleCardDelete..");
     }
   }
@@ -195,7 +187,7 @@ const App = () => {
         closeAllPopups();
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong adding new place..");
     }
   }
@@ -209,7 +201,7 @@ const App = () => {
         closeAllPopups();
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong with Update user..");
     }
   }
@@ -223,7 +215,7 @@ const App = () => {
         closeAllPopups();
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong with Update user avatar..");
     }
   }
