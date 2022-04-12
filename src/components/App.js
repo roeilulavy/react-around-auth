@@ -45,7 +45,7 @@ const App = () => {
       history.push('/signin');
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       setSuccess(false);
       setMessage('Oops, something went wrong! Please try again.');
     });
@@ -64,7 +64,7 @@ const App = () => {
         setLoggedIn(true);
       }
     }).catch((err) => {
-      console.log(err);
+      console.error(err);
       setSuccess(false);
       setMessage('Oops, something went wrong! Please try again.');
       setIsInfoTolltipPopup(true);
@@ -104,7 +104,7 @@ const App = () => {
             setCurrentUser(userInfo);
           }
         } catch (error) {
-          console.log("Error! ", error);
+          console.error("Error! ", error);
           alert("Something went wrong getting user data..");
         } finally {
           setIsLoading(false);
@@ -120,7 +120,7 @@ const App = () => {
             setCards(cardsData);
           }
         } catch (error) {
-          console.log("Error! ", error);
+          console.error("Error! ", error);
           alert("Something went wrong getting cards data..");
         } finally {
           setIsLoading(false);
@@ -161,7 +161,7 @@ const App = () => {
         );
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong with HandleLike..");
     }
   }
@@ -173,7 +173,7 @@ const App = () => {
         setCards((cards) => cards.filter((item) => item._id !== card._id));
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong with handleCardDelete..");
     }
   }
@@ -187,7 +187,7 @@ const App = () => {
         closeAllPopups();
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong adding new place..");
     }
   }
@@ -201,7 +201,7 @@ const App = () => {
         closeAllPopups();
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong with Update user..");
     }
   }
@@ -215,7 +215,7 @@ const App = () => {
         closeAllPopups();
       }
     } catch (error) {
-      console.log("Error! ", error);
+      console.error("Error! ", error);
       alert("something went wrong with Update user avatar..");
     }
   }
