@@ -10,7 +10,7 @@ function Card({
   onCardDelete,
 }) {
   const currentUser = useContext(CurrentUserContext);
-  const isOwn = card.owner === currentUser._id;
+  const isOwn = card.owner._id === currentUser._id;
   const isLiked = card.likes.some((like) => like._id === currentUser._id);
 
   const cardLikeButtonClassName = `elements__like-button ${

@@ -13,7 +13,10 @@ class Api {
 
   async getUserInfo(token) {
     const response = await fetch(`${this._url}/users/me`, {
-      headers: { authorization: `Bearer ${token}` },
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
     return this._checkResponse(response);
   }
@@ -44,7 +47,10 @@ class Api {
 
   async getInitialCards(token) {
     const response = await fetch(`${this._url}/cards`, {
-      headers: { authorization: `Bearer ${token}` },
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
     return this._checkResponse(response);
   }
@@ -64,7 +70,10 @@ class Api {
   async deleteCard(cardId, token) {
     const response = await fetch(`${this._url}/cards/${cardId}`, {
       method: "DELETE",
-      headers: { authorization: `Bearer ${token}` },
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
     return this._checkResponse(response);
   }
@@ -73,13 +82,19 @@ class Api {
     if (isLiked) {
       const response = await fetch(`${this._url}/cards/${cardId}/likes`, {
         method: "PUT",
-        headers: { authorization: `Bearer ${token}` },
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
       return this._checkResponse(response);
     } else {
       const response = await fetch(`${this._url}/cards/${cardId}/likes`, {
         method: "DELETE",
-        headers: { authorization: `Bearer ${token}` },
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
       return this._checkResponse(response);
     }

@@ -169,12 +169,10 @@ const App = () => {
   }
 
   async function handleCardDelete(card) {
-    const cardId = card;
-
     try {
       const deletedCard = await api.deleteCard(card._id, token);
       if (deletedCard) {
-        setCards((cards) => cards.filter((item) => item._id !== cardId._id));
+        setCards((cards) => cards.filter((item) => item._id !== card._id));
       }
     } catch (error) {
       console.log("Error! ", error);
